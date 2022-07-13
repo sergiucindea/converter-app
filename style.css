@@ -25,3 +25,7 @@ input[type=number] {
 .invalid-feedback {
     width: 10vw;
 }
+
+.feedback {
+ border: 1px solid red;
+}

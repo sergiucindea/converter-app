@@ -16,13 +16,14 @@
                 <label for="inputNumber" class="col-form-label">Input</label>
               </div>
               <div class="col-auto">
-                <input type="text" pattern="[a-fA-F0-9#xX]*" id="inputNumber" class="form-control position-relative" required>
+                <input type="text" id="inputNumber" class="form-control position-relative" required>
                 <div class="invalid-feedback position-absolute">
                 Please enter a valid input
                 </div>
               </div>
               <div class="col-auto">
                 <button type="submit" class="btn btn-secondary" id="btn-convert">Convert</button>
+                <button class="btn btn-secondary" id="btn-convert-bin">Binary Conversion</button>
               </div>
               <div id="body-message" class="text-center">
                   <h1 id="input"></h1>

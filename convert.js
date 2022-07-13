@@ -1,39 +1,10 @@
 export default class Converter {
-    FORMAT_HEX = 1;
-    FORMAT_DEC = 2;
-    FORMAT_INVALID = 0;
-    hexFormat = 'hexadecimal';
-    decFormat = 'decimal';
     resultValue;
-    binResult;
-    valueFormat;
 
-    constructor(inputValue, base) {
-        this.inputValue = inputValue;
+    constructor(base) {
         this.base = base;
     }
 
-    checkForLetters(str) {
-        return /^[0-9]*$/.test(str);
-    }
-
-    validateInput(value) {
-        let noSpecialChars = this.containsSpecialCharacters(value);
-        if (value) {
-            if (noSpecialChars) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-           return false;
-        }
-    }
-    
-    containsSpecialCharacters(value) {
-        return /^[a-fA-F0-9hx#]*$/.test(value);
-    }
-    
     convertToHexadecimal(value, array) {
         let maximumExp = this.calculateBaseMaxExp(value);
         let divider = this.calculateDivider(maximumExp, 16);
@@ -78,8 +49,17 @@ export default class Converter {
     }
     
     retainDigit(value, array) {
-        let convertedChar = value.toString(16);
+        let convertedChar = this.convertDigitToString(value);
         array.push(convertedChar);
+    }
+
+    convertDigitToString(value) {
+        let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
+        for (let i = 0; i < arr.length; i++) {
+            if (value == i) {
+                return arr[i];
+            }                                                                                                
+        }
     }
     
     convertToDecimal(value) {
@@ -90,7 +70,7 @@ export default class Converter {
         } else {
             trimmed = value;
         }
-        let nrOfDigits = this.calculateNrOfDigits(trimmed);
+        let nrOfDigits = trimmed.length;
         return this.calculateSumOfDigits(nrOfDigits, trimmed);
     }
     
@@ -106,22 +86,10 @@ export default class Converter {
     
     trim(value) {
         let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (this.checkValStartFor0(trimmed)) {
-            trimmed = this.clearStart(trimmed);
+        while (trimmed[0] == 0) {
+            trimmed = trimmed.slice(1);
         }
         return trimmed;
-    }
-    
-    checkValStartFor0(value) {
-        return value[0] == 0;
-    }
-    
-    clearStart(value) {
-        return value.slice(1);
-    }
-    
-    calculateNrOfDigits(value) {
-        return value.length;
     }
     
     calculateSumOfDigits(counter, value) {
@@ -129,11 +97,20 @@ export default class Converter {
         let eachNr = 0;
         let limit = counter - 1;
         for (let i = 0; i < counter; i++) {
-            eachNr = parseInt(value[i], 16);
+            eachNr = this.convertStringToDigit(value[i]);
             sum += this.calculateEachDigitTimesBase(eachNr, limit);
             limit--;
         }
         return sum;
+    }
+
+    convertStringToDigit(value) {
+        let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
+        for (let i = 0; i<arr.length; i++) {
+            if (value.toLowerCase() == arr[i]) {
+                return i;
+            }
+        }
     }
     
     calculateEachDigitTimesBase(value, exp) {
@@ -148,70 +125,34 @@ export default class Converter {
         }
     }
     
-    getValueType(value) {
-        let valueTargetType;
-        if (!this.checkForLetters(value)) {
-            valueTargetType = this.FORMAT_DEC;
-            this.valueFormat = this.hexFormat;
-        } else {
-            valueTargetType = this.FORMAT_HEX;
-            this.valueFormat = this.decFormat;
-        }
-        return valueTargetType;
-    }
-    
     convertToBinary(value, array) {
         if (value) {
             for (let i = 0; i < value.length; i++) {
-                this.convertDigitToBinary(parseInt(value[i], 16), array);
+                this.convertDigitToBinary(this.convertStringToDigit(value[i]), array);
             }
             return array.join('');
         } else {
             return '0000';
         }
     }
-    
+
     convertDigitToBinary(number, array) {
         let baseBin = 2;
         let divider = this.calculateDivider(3, baseBin);
         this.calculateDivision(number, divider, baseBin, array);
     }
 
-    get conversionType() {
-        if (this.getValueType(this.inputValue) == this.FORMAT_DEC) {
-            return this.decFormat;
+    doConversion(inputValue) {
+        let array = [];
+
+        if(this.base == 10) {
+            this.resultValue = this.convertToDecimal(inputValue);
+        } else if (this.base == 16) {
+            this.resultValue = this.convertToHexadecimal(inputValue, array);
         } else {
-            return this.hexFormat;
+            this.resultValue = this.convertDigitToBinary(inputValue, array);
         }
-    }
 
-    get convertedResult() {
-        return this.resultValue;
-    }
-
-    get binaryResult() {
-        return this.binResult;
-    }
-
-    doConversion() {
-        let hexadecimalValue;
-        let valueType;
-        let hexaArray = [];
-        let binArray = [];
-        
-    if (!this.validateInput(this.inputValue)) {
-        this.valueFormat = 'unknown';
-        //alert('The input is invalid. Please enter a decimal or a hexadecimal value');
-    } else {
-        valueType = this.getValueType(this.inputValue);
-        if (valueType == this.FORMAT_DEC) {
-            this.resultValue = this.convertToDecimal(this.inputValue); 
-            hexadecimalValue = this.trim(this.inputValue);
-        } else {
-            hexadecimalValue = this.convertToHexadecimal(this.inputValue, hexaArray); 
-            this.resultValue = hexadecimalValue;
-        }
-        this.binResult = this.convertToBinary(hexadecimalValue, binArray);
-        }
+    return this.resultValue;
     }
 }
