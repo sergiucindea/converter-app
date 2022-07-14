@@ -1,5 +1,6 @@
 export default class Converter {
     resultValue;
+    ARR = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
 
     constructor(base) {
         this.base = base;
@@ -54,10 +55,9 @@ export default class Converter {
     }
 
     convertDigitToString(value) {
-        let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
-        for (let i = 0; i < arr.length; i++) {
+        for (let i = 0; i < this.ARR.length; i++) {
             if (value == i) {
-                return arr[i];
+                return this.ARR[i];
             }                                                                                                
         }
     }
@@ -105,9 +105,8 @@ export default class Converter {
     }
 
     convertStringToDigit(value) {
-        let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
-        for (let i = 0; i<arr.length; i++) {
-            if (value.toLowerCase() == arr[i]) {
+        for (let i = 0; i < this.ARR.length; i++) {
+            if (value.toLowerCase() == this.ARR[i]) {
                 return i;
             }
         }
@@ -125,10 +124,16 @@ export default class Converter {
         }
     }
     
+    checkForLetters(str) {
+        return /^[0-9]*$/.test(str);
+    }
+
     convertToBinary(value, array) {
-        if (value) {
+        let digit;
+        if (value != 0) {
             for (let i = 0; i < value.length; i++) {
-                this.convertDigitToBinary(this.convertStringToDigit(value[i]), array);
+                digit = this.convertStringToDigit(value[i]);
+                this.convertDigitToBinary(digit, array);
             }
             return array.join('');
         } else {
@@ -140,6 +145,7 @@ export default class Converter {
         let baseBin = 2;
         let divider = this.calculateDivider(3, baseBin);
         this.calculateDivision(number, divider, baseBin, array);
+        return array;
     }
 
     doConversion(inputValue) {
@@ -150,7 +156,7 @@ export default class Converter {
         } else if (this.base == 16) {
             this.resultValue = this.convertToHexadecimal(inputValue, array);
         } else {
-            this.resultValue = this.convertDigitToBinary(inputValue, array);
+            this.resultValue = this.convertToBinary(inputValue, array);
         }
 
     return this.resultValue;
