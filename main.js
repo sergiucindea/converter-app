@@ -1,6 +1,3 @@
-import Converter from './convert.js';
-//import NewConverter from "./simpleConverter.js";
-
 const FORMAT_HEX = 1;
 const FORMAT_DEC = 2;
 const FORMAT_INVALID = 0;
@@ -22,11 +19,11 @@ function displayResultsToHtml(value, result, binary) {
         if (!valueType) {
             inputMessageEl.textContent = 'The input was of unknown format';
         } else if (valueType == FORMAT_DEC) {
-            inputMessageEl.textContent = `The input value is ${value} an the format is: hexadecimal`;
+            inputMessageEl.textContent = `The input value is ${value} and the format is: hexadecimal`;
             decimalMessageEl.textContent = `The decimal value is ${result}`;
             binaryMessageEl.textContent = `The binary value is ${binary}`;
         } else {
-            inputMessageEl.textContent = `The input value is ${value} an the format is: decimal`;
+            inputMessageEl.textContent = `The input value is ${value} and the format is: decimal`;
             decimalMessageEl.textContent = `The hexadecimal value is ${result}`;
             binaryMessageEl.textContent = `The binary value is ${binary}`;
         }
@@ -70,6 +67,7 @@ function getValueType(value) {
 
 function mainFunc(e) {
     let converter;
+    let binConverter;
     let result;
     let value = getInput();
     let valueType = getValueType(value);
@@ -87,8 +85,8 @@ function mainFunc(e) {
             result = converter.doConversion(value);
             hexaValue = result;
         }
-        converter = new Converter(2);
-        binaryValue = converter.doConversion(hexaValue);
+        binConverter = new Converter(2);
+        binaryValue = binConverter.doConversion(hexaValue);
     } 
     displayResultsToHtml(value, result, binaryValue);
 }
