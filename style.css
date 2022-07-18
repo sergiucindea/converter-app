@@ -26,6 +26,19 @@ input[type=number] {
     width: 10vw;
 }
 
-.feedback {
- border: 1px solid red;
+.table-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.div-content {
+    padding-top: 2rem;
+    background-color: white;
+    height: 60vh;
+}
+
+.nav-link {
+    color: rgb(54, 50, 50) !important;
 }
