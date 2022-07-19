@@ -57,7 +57,7 @@ class Converter {
     calculateBaseMaxExp(value) {
         let expCounter = 0;
         let baseNr = 16;
-        while (baseNr < value) {
+        while (baseNr <= value) {
             baseNr *= 16;
             expCounter++;
         }
@@ -92,7 +92,7 @@ class Converter {
     }
     
     convertToDecimal(value) {
-        let trimNeeded = this.checkforTrim(value);
+        let trimNeeded = this.checkforTrim(value.toLowerCase());
         let trimmed;
         if (trimNeeded) {
             trimmed = this.trim(value);
@@ -104,7 +104,7 @@ class Converter {
     }
     
     checkforTrim(value) {
-        if (value.includes('x') || value.includes('h')) {
+        if (value.includes('x') || value.includes('h') || value.includes('X') || value.includes('H')) {
             return 1;
         } else if (value.includes('#')) {
             return 1;
@@ -182,7 +182,7 @@ class Converter {
         } else {
             this.resultValue = this.convertToBinary(inputValue, array);
         }
-    return this.resultValue;
+        return this.resultValue;
     }
 }
 
@@ -193,15 +193,61 @@ class NewConverter {
         this.base = base;
     }
 
+    trim(value) {
+        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
+        while (trimmed[0] == 0) {
+            trimmed = trimmed.slice(1);
+        }
+        return trimmed;
+    }
+
+    checkforTrim(value) {
+        if (value.includes('x') || value.includes('h')) {
+            return 1;
+        } else if (value.includes('#')) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    convertToDecimal(value) {
+        let trimNeeded = this.checkforTrim(value.toLowerCase());
+        let trimmed;
+        if (trimNeeded) {
+            trimmed = this.trim(value);
+        } else {
+            trimmed = value;
+        }
+        return parseInt(trimmed, 16);
+    }
+
     doConversion(value) {
         if (this.base == 16) {
             this.resultValue = Number(value).toString(16);
         } else if (this.base == 10) {
-            this.resultValue = parseInt(value, 16);        
+            this.resultValue = this.convertToDecimal(value);        
         } else {
-            this.resultValue = value.toString(2);
+            this.resultValue = this.convertToDecimal(value).toString(2);
         }
         return this.resultValue;
     }
-
 }
+
+class Factory {
+
+    constructor(type) {
+        this.type = type;
+    }
+
+    create = (base) => {
+        let type = this.type;
+        let converter;
+        if (type) {
+            converter = new Converter(base);
+        } else {
+            converter = new NewConverter(base);
+        }
+        return converter;
+    }
+};
