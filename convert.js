@@ -103,24 +103,6 @@ class Converter {
         return this.calculateSumOfDigits(nrOfDigits, trimmed);
     }
     
-    checkforTrim(value) {
-        if (value.includes('x') || value.includes('h') || value.includes('X') || value.includes('H')) {
-            return 1;
-        } else if (value.includes('#')) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    
-    trim(value) {
-        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (trimmed[0] == 0) {
-            trimmed = trimmed.slice(1);
-        }
-        return trimmed;
-    }
-    
     calculateSumOfDigits(counter, value) {
         let sum = 0;
         let index;
@@ -150,6 +132,24 @@ class Converter {
     checkForLetters(str) {
         return /^[0-9]*$/.test(str);
     }
+
+    checkforTrim(value) {
+        if (value.includes('x') || value.includes('h')) {
+            return 1;
+        } else if (value.includes('#')) {
+            return 1;
+        } else {
+            return 0;
+        }
+    };
+    
+    trim(value) {
+        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
+        while (trimmed[0] == 0) {
+            trimmed = trimmed.slice(1);
+        }
+        return trimmed;
+    };
 
     convertToBinary(value, array) {
         let digit;
@@ -193,14 +193,6 @@ class NewConverter {
         this.base = base;
     }
 
-    trim(value) {
-        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (trimmed[0] == 0) {
-            trimmed = trimmed.slice(1);
-        }
-        return trimmed;
-    }
-
     checkforTrim(value) {
         if (value.includes('x') || value.includes('h')) {
             return 1;
@@ -209,7 +201,15 @@ class NewConverter {
         } else {
             return 0;
         }
-    }
+    };
+    
+    trim(value) {
+        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
+        while (trimmed[0] == 0) {
+            trimmed = trimmed.slice(1);
+        }
+        return trimmed;
+    };
 
     convertToDecimal(value) {
         let trimNeeded = this.checkforTrim(value.toLowerCase());
@@ -233,21 +233,3 @@ class NewConverter {
         return this.resultValue;
     }
 }
-
-class Factory {
-
-    constructor(type) {
-        this.type = type;
-    }
-
-    create = (base) => {
-        let type = this.type;
-        let converter;
-        if (type) {
-            converter = new Converter(base);
-        } else {
-            converter = new NewConverter(base);
-        }
-        return converter;
-    }
-};
