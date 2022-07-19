@@ -1,5 +1,43 @@
-export default class Converter {
+class Converter {
     resultValue;
+
+    HEXA_DICTIONARY = new Map([
+        [0, 0],
+        [1, 1],
+        [2, 2],
+        [3, 3],
+        [4, 4],
+        [5, 5],
+        [6, 6],
+        [7, 7],
+        [8, 8],
+        [9, 9],
+        [10, 'a'],
+        [11, 'b'],
+        [12, 'c'],
+        [13, 'd'],
+        [14,  'e'],
+        [15, 'f']
+    ]);
+    
+    DEC_DICTIONARY = new Map([
+        ['0', 0],
+        ['1', 1],
+        ['2', 2],
+        ['3', 3],
+        ['4', 4],
+        ['5', 5],
+        ['6', 6],
+        ['7', 7],
+        ['8', 8],
+        ['9', 9],
+        ['a', 10],
+        ['b', 11],
+        ['c', 12],
+        ['d', 13],
+        ['e', 14],
+        ['f', 15]
+    ]);
 
     constructor(base) {
         this.base = base;
@@ -19,7 +57,7 @@ export default class Converter {
     calculateBaseMaxExp(value) {
         let expCounter = 0;
         let baseNr = 16;
-        while (baseNr < value) {
+        while (baseNr <= value) {
             baseNr *= 16;
             expCounter++;
         }
@@ -49,21 +87,12 @@ export default class Converter {
     }
     
     retainDigit(value, array) {
-        let convertedChar = this.convertDigitToString(value);
+        let convertedChar = this.HEXA_DICTIONARY.get(value);
         array.push(convertedChar);
-    }
-
-    convertDigitToString(value) {
-        let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
-        for (let i = 0; i < arr.length; i++) {
-            if (value == i) {
-                return arr[i];
-            }                                                                                                
-        }
     }
     
     convertToDecimal(value) {
-        let trimNeeded = this.checkforTrim(value);
+        let trimNeeded = this.checkforTrim(value.toLowerCase());
         let trimmed;
         if (trimNeeded) {
             trimmed = this.trim(value);
@@ -74,43 +103,18 @@ export default class Converter {
         return this.calculateSumOfDigits(nrOfDigits, trimmed);
     }
     
-    checkforTrim(value) {
-        if (value.includes('x') || value.includes('h')) {
-            return 1;
-        } else if (value.includes('#')) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    
-    trim(value) {
-        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (trimmed[0] == 0) {
-            trimmed = trimmed.slice(1);
-        }
-        return trimmed;
-    }
-    
     calculateSumOfDigits(counter, value) {
         let sum = 0;
+        let index;
         let eachNr = 0;
         let limit = counter - 1;
         for (let i = 0; i < counter; i++) {
-            eachNr = this.convertStringToDigit(value[i]);
+            index = value[i];
+            eachNr = this.DEC_DICTIONARY.get(index.toLowerCase());
             sum += this.calculateEachDigitTimesBase(eachNr, limit);
             limit--;
         }
         return sum;
-    }
-
-    convertStringToDigit(value) {
-        let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'];
-        for (let i = 0; i<arr.length; i++) {
-            if (value.toLowerCase() == arr[i]) {
-                return i;
-            }
-        }
     }
     
     calculateEachDigitTimesBase(value, exp) {
@@ -125,10 +129,36 @@ export default class Converter {
         }
     }
     
+    checkForLetters(str) {
+        return /^[0-9]*$/.test(str);
+    }
+
+    checkforTrim(value) {
+        if (value.includes('x') || value.includes('h')) {
+            return 1;
+        } else if (value.includes('#')) {
+            return 1;
+        } else {
+            return 0;
+        }
+    };
+    
+    trim(value) {
+        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
+        while (trimmed[0] == 0) {
+            trimmed = trimmed.slice(1);
+        }
+        return trimmed;
+    };
+
     convertToBinary(value, array) {
-        if (value) {
+        let digit;
+        let index;
+        if (value != 0) {
             for (let i = 0; i < value.length; i++) {
-                this.convertDigitToBinary(this.convertStringToDigit(value[i]), array);
+                index = value[i];
+                digit = this.DEC_DICTIONARY.get(index.toLowerCase());
+                this.convertDigitToBinary(digit, array);
             }
             return array.join('');
         } else {
@@ -140,19 +170,66 @@ export default class Converter {
         let baseBin = 2;
         let divider = this.calculateDivider(3, baseBin);
         this.calculateDivision(number, divider, baseBin, array);
+        return array;
     }
 
     doConversion(inputValue) {
         let array = [];
-
         if(this.base == 10) {
             this.resultValue = this.convertToDecimal(inputValue);
         } else if (this.base == 16) {
             this.resultValue = this.convertToHexadecimal(inputValue, array);
         } else {
-            this.resultValue = this.convertDigitToBinary(inputValue, array);
+            this.resultValue = this.convertToBinary(inputValue, array);
         }
+        return this.resultValue;
+    }
+}
 
-    return this.resultValue;
+class NewConverter {
+    resultValue;
+
+    constructor(base) {
+        this.base = base;
+    }
+
+    checkforTrim(value) {
+        if (value.includes('x') || value.includes('h')) {
+            return 1;
+        } else if (value.includes('#')) {
+            return 1;
+        } else {
+            return 0;
+        }
+    };
+    
+    trim(value) {
+        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
+        while (trimmed[0] == 0) {
+            trimmed = trimmed.slice(1);
+        }
+        return trimmed;
+    };
+
+    convertToDecimal(value) {
+        let trimNeeded = this.checkforTrim(value.toLowerCase());
+        let trimmed;
+        if (trimNeeded) {
+            trimmed = this.trim(value);
+        } else {
+            trimmed = value;
+        }
+        return parseInt(trimmed, 16);
+    }
+
+    doConversion(value) {
+        if (this.base == 16) {
+            this.resultValue = Number(value).toString(16);
+        } else if (this.base == 10) {
+            this.resultValue = this.convertToDecimal(value);        
+        } else {
+            this.resultValue = this.convertToDecimal(value).toString(2);
+        }
+        return this.resultValue;
     }
 }
