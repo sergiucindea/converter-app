@@ -99,6 +99,8 @@ class Converter {
         } else {
             trimmed = value;
         }
+
+        // value = this.trim(value);
         let nrOfDigits = trimmed.length;
         return this.calculateSumOfDigits(nrOfDigits, trimmed);
     }
@@ -154,6 +156,7 @@ class Converter {
     convertToBinary(value, array) {
         let digit;
         let index;
+        value = this.trim(value);
         if (value != 0) {
             for (let i = 0; i < value.length; i++) {
                 index = value[i];

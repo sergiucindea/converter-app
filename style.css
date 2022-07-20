@@ -27,18 +27,50 @@ input[type=number] {
 }
 
 .table-container {
-    min-height: 100vh;
+    width: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
-}
-
-.div-content {
-    padding-top: 2rem;
-    background-color: white;
-    height: 60vh;
+    justify-content: center;
 }
 
 .nav-link {
     color: rgb(54, 50, 50) !important;
+}
+
+.min-vh-80 {
+    min-height: 80vh;
+}
+
+.mt-4rem {
+    margin-top: 4rem;
+}
+
+.nav-tabs .nav-link {
+    border-top-left-radius: 0.2rem !important;
+    border-top-right-radius: 2rem !important;
+}
+
+#pills-tab {
+    position: relative;
+}
+
+#table-tab,
+#div-2-tab,
+#div-3-tab {
+    position: absolute;
+    top: -2.5rem;
+}
+
+#table-tab {
+    z-index: 4;
+}
+
+#div-2-tab {
+    left: 2.5rem;
+    z-index:3
+}
+
+#div-3-tab {    
+    left: 7.5rem;
+    z-index: 1;
 }

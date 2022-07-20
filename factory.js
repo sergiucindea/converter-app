@@ -1,6 +1,6 @@
 class Factory {
-    CONVERTER_TYPE_MY = 1;
-    CONVERTER_TYPE_DEFAULT = 2;
+    CONVERTER_TYPE_DEFAULT = 1;
+    CONVERTER_TYPE_MY = 2;
 
     create(base, converterType) {
         this.base = base;
