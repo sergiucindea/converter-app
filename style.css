@@ -66,11 +66,11 @@ input[type=number] {
 }
 
 #div-2-tab {
-    left: 2.5rem;
+    left: 3rem;
     z-index:3
 }
 
 #div-3-tab {    
-    left: 7.5rem;
+    left: 8.5rem;
     z-index: 1;
 }

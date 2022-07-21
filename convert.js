@@ -92,15 +92,14 @@ class Converter {
     }
     
     convertToDecimal(value) {
-        let trimNeeded = this.checkforTrim(value.toLowerCase());
+        let trimNeeded = ConverterHelper.checkforTrim(value.toLowerCase());
         let trimmed;
         if (trimNeeded) {
-            trimmed = this.trim(value);
+            trimmed = ConverterHelper.trim(value);
         } else {
             trimmed = value;
         }
 
-        // value = this.trim(value);
         let nrOfDigits = trimmed.length;
         return this.calculateSumOfDigits(nrOfDigits, trimmed);
     }
@@ -135,28 +134,10 @@ class Converter {
         return /^[0-9]*$/.test(str);
     }
 
-    checkforTrim(value) {
-        if (value.includes('x') || value.includes('h')) {
-            return 1;
-        } else if (value.includes('#')) {
-            return 1;
-        } else {
-            return 0;
-        }
-    };
-    
-    trim(value) {
-        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (trimmed[0] == 0) {
-            trimmed = trimmed.slice(1);
-        }
-        return trimmed;
-    };
-
     convertToBinary(value, array) {
         let digit;
         let index;
-        value = this.trim(value);
+        value = ConverterHelper.trim(value);
         if (value != 0) {
             for (let i = 0; i < value.length; i++) {
                 index = value[i];
@@ -183,7 +164,10 @@ class Converter {
         } else if (this.base == 16) {
             this.resultValue = this.convertToHexadecimal(inputValue, array);
         } else {
+            let start = performance.now();
             this.resultValue = this.convertToBinary(inputValue, array);
+            let end = performance.now();
+            console.log(end-start);
         }
         return this.resultValue;
     }
@@ -196,29 +180,11 @@ class NewConverter {
         this.base = base;
     }
 
-    checkforTrim(value) {
-        if (value.includes('x') || value.includes('h')) {
-            return 1;
-        } else if (value.includes('#')) {
-            return 1;
-        } else {
-            return 0;
-        }
-    };
-    
-    trim(value) {
-        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (trimmed[0] == 0) {
-            trimmed = trimmed.slice(1);
-        }
-        return trimmed;
-    };
-
     convertToDecimal(value) {
-        let trimNeeded = this.checkforTrim(value.toLowerCase());
+        let trimNeeded = ConverterHelper.checkforTrim(value.toLowerCase());
         let trimmed;
         if (trimNeeded) {
-            trimmed = this.trim(value);
+            trimmed = ConverterHelper.trim(value);
         } else {
             trimmed = value;
         }
@@ -231,7 +197,10 @@ class NewConverter {
         } else if (this.base == 10) {
             this.resultValue = this.convertToDecimal(value);        
         } else {
+            let start = performance.now();
             this.resultValue = this.convertToDecimal(value).toString(2);
+            let end = performance.now();
+            console.log(end-start);
         }
         return this.resultValue;
     }
