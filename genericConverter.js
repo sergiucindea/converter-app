@@ -1,81 +1,8 @@
-class Converter {
+class GenericConverter {
+
     resultValue;
 
-    HEXA_DICTIONARY = new Map([
-        ['0', 0],
-        ['1', 1],
-        ['2', 2],
-        ['3', 3],
-        ['4', 4],
-        ['5', 5],
-        ['6', 6],
-        ['7', 7],
-        ['8', 8],
-        ['9', 9],
-        ['10', 'a'],
-        ['11', 'b'],
-        ['12', 'c'],
-        ['13', 'd'],
-        ['14', 'e'],
-        ['15', 'f']
-    ]);
-    
-    DEC_DICTIONARY = new Map([
-        ['0', 0],
-        ['1', 1],
-        ['2', 2],
-        ['3', 3],
-        ['4', 4],
-        ['5', 5],
-        ['6', 6],
-        ['7', 7],
-        ['8', 8],
-        ['9', 9],
-        ['a', 10],
-        ['b', 11],
-        ['c', 12],
-        ['d', 13],
-        ['e', 14],
-        ['f', 15]
-    ]);
-
-    OCT_DICTIONARY = new Map([
-        ['0', '0'],
-        ['1', '1'],
-        ['2', '2'],
-        ['3', '3'],
-        ['4', '4'],
-        ['5', '5'],
-        ['6', '6'],
-        ['7', '7'],
-        ['8', '10'],
-        ['9', '11'],
-        ['10', '12'],
-        ['11', '13'],
-        ['12', '14'],
-        ['13', '15'],
-        ['14', '16'],
-        ['15', '17']
-    ]);
-
-    QUI_DICTIONARY = new Map([
-        ['0', '0'],
-        ['1', '1'],
-        ['2', '2'],
-        ['3', '3'],
-        ['4', '4'],
-        ['5', '10'],
-        ['6', '11'],
-        ['7', '12'],
-        ['8', '13'],
-        ['9', '14'],
-        ['10', '20'],
-        ['11', '21'],
-        ['12', '22'],
-        ['13', '23'],
-        ['14', '24'],
-        ['15', '30']
-    ]);
+    DICTIONARY = new Map();
 
     constructor(base) {
         this.base = base;
@@ -95,13 +22,12 @@ class Converter {
         } else {
             return array.join('');
         }
-        
     }
     
     calculateBaseMaxExp(value, base) {
         let expCounter = 0;
         let baseNr = base;
-        while (baseNr < value) {
+        while (baseNr <= value) {
             baseNr *= base;
             expCounter++;
         }
@@ -141,7 +67,7 @@ class Converter {
         if (trimNeeded) {
             trimmed = this.trim(value);
         } else {
-            trimmed = value;
+            return value;
         }
         let nrOfDigits = trimmed.length;
         return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
@@ -172,7 +98,7 @@ class Converter {
         let limit = counter - 1;
         for (let i = 0; i < counter; i++) {
             index = value[i];
-            eachNr = dictionary.get(index.toLowerCase());
+            eachNr = +(dictionary.get(index.toLowerCase()));
             sum += this.calculateEachDigitTimesBase(eachNr, limit, base);
             limit--;
         }
@@ -195,14 +121,15 @@ class Converter {
         return /^[0-9]*$/.test(str);
     }
 
-    convertToBinary(value, array) {
+    convertToBinary(value, array, dictionary) {
         let digit;
         let index;
+        value = this.trim(value);
         if (value != 0) {
             for (let i = 0; i < value.length; i++) {
                 index = value[i];
-                digit = this.DEC_DICTIONARY.get(index.toLowerCase());
-                this.convertDigitToBinary(digit, array);
+                digit = dictionary.get(index.toLowerCase());
+                this.convertDigitToBinary(digit, array, dictionary);
             }
             return array.join('');
         } else {
@@ -210,23 +137,28 @@ class Converter {
         }
     }
 
-    convertDigitToBinary(number, array) {
+    convertDigitToBinary(number, array, dictionary) {
         let baseBin = 2;
         let divider = this.calculateDivider(3, baseBin);
-        this.calculateDivision(number, divider, baseBin, array);
+        this.calculateDivision(number, divider, baseBin, array, dictionary);
         return array;
     }
 
     setDictionary(base) {
-        let dictionary;
-        if (base == 10) {
-            dictionary = this.DEC_DICTIONARY;
-        } else if (base == 16) {
-            dictionary = this.HEXA_DICTIONARY;
-        } else if (base == 8) {
-            dictionary = this.OCT_DICTIONARY;
+        const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97));
+        let dictionary = this.DICTIONARY;
+        if (base <= 10) {
+            for (let i = 0; i < this.base; i++) {
+                dictionary.set(`${i}`, i);
+            }
         } else {
-            dictionary = this.QUI_DICTIONARY;
+            for (let i = 0; i < this.base; i++) {
+                if (i > 9) {
+                    dictionary.set(`${i}`, alphabet.shift());
+                } else {
+                    dictionary.set(`${i}`, i);
+                }
+            }
         }
         return dictionary;
     }
@@ -234,17 +166,10 @@ class Converter {
     doConversion(inputValue) {
         let array = [];
         let dictionary = this.setDictionary(this.base);
-        if(this.base == 10) {
-            this.resultValue = this.convertToDecimal(inputValue, 16, dictionary);
-        } else if (this.base == 16) {
-            this.resultValue = this.convertFromDecimal(inputValue, array, 16, dictionary);
-        } else if (this.base == 8) {
-            this.resultValue = this.convertFromDecimal(inputValue, array, 8, dictionary);
-        } else if (this.base == 5){
-            this.resultValue = this.convertFromDecimal(inputValue, array, 5, dictionary);
-        } else {
-            this.resultValue = this.convertToBinary(inputValue, array);
-        }
+        let decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
+        this.resultValue = this.convertFromDecimal(decimalValue, array, this.base, dictionary);
+
     return this.resultValue;
     }
+
 }

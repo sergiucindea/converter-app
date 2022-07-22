@@ -1,9 +1,10 @@
 const FORMAT_HEX = 1;
 const FORMAT_DEC = 2;
 const FORMAT_INVALID = 0;
+const ALPH = 36;
 // const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
 // const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
-const INPUT_ARR = ['2fe7'];
+const INPUT_ARR = ['3243'];
 
 
 function checkForLetters(str) {
@@ -43,7 +44,7 @@ function convertValue(value, outputField, binaryOutputField, converterType) {
             result = converter.doConversion(value);
             hexaValue = value;
         } else if (valueType == FORMAT_HEX) {
-            converter = Factory.create(16, converterType);
+            converter = Factory.create(30, converterType);
             result = converter.doConversion(value);
             hexaValue = result;
         } else {
@@ -100,7 +101,8 @@ function populateHtml() {
     let tableContainerEl = document.getElementById('div-content');
     let selectedConverterType = converterTypeSelectEl.selectedIndex;
     let errorMessageEl = document.getElementById('error-message');
-
+    //todo: capture desired base
+    
     if(selectedConverterType) {
         populateConversionTable(selectedConverterType);
         tableContainerEl.classList.remove('d-none');
@@ -130,8 +132,20 @@ function setSelectorValues() {
     `<option value="0" selected>Choose converter type</option>
     <option value="${Factory.CONVERTER_TYPE_DEFAULT}">Default Converter</option>
     <option value="${Factory.CONVERTER_TYPE_MY}">Custom Converter</option>
+    <option value="${Factory.CONVERTER_TYPE_GENERIC}" id="generic-conv">Generic Converter</option>
     `;
     converterTypeSelectorEl.innerHTML = html;
+}
+
+function displayBaseInput() {
+    let baseSelectorInputEl = document.getElementById('generic-base');
+    for (let i = 1 ; i <= ALPH; i++) {
+        let child = document.createElement('option');
+        child.innerHTML = i;
+        baseSelectorInputEl.appendChild(child);
+    }
+    baseSelectorInputEl.classList.remove('d-none');
+    //todo: populate options for desired base conversion
 }
 
 function run() {
@@ -140,6 +154,8 @@ function run() {
     generateTableBtnEl.addEventListener('click', populateHtml);
     tabBtnElems.addEventListener('click', setIndex);
     setSelectorValues(); 
+    let genericConverterOptionEl = document.getElementById('generic-conv');
+    genericConverterOptionEl.addEventListener('click', displayBaseInput);
 }
 
 run();

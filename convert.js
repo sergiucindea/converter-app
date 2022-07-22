@@ -164,10 +164,7 @@ class Converter {
         } else if (this.base == 16) {
             this.resultValue = this.convertToHexadecimal(inputValue, array);
         } else {
-            let start = performance.now();
             this.resultValue = this.convertToBinary(inputValue, array);
-            let end = performance.now();
-            console.log(end-start);
         }
         return this.resultValue;
     }
@@ -197,10 +194,7 @@ class NewConverter {
         } else if (this.base == 10) {
             this.resultValue = this.convertToDecimal(value);        
         } else {
-            let start = performance.now();
             this.resultValue = this.convertToDecimal(value).toString(2);
-            let end = performance.now();
-            console.log(end-start);
         }
         return this.resultValue;
     }
