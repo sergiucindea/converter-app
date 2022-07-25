@@ -4,6 +4,25 @@ class GenericConverter {
 
     DICTIONARY = new Map();
 
+    DEC_DICTIONARY = new Map([
+        ['0', 0],
+        ['1', 1],
+        ['2', 2],
+        ['3', 3],
+        ['4', 4],
+        ['5', 5],
+        ['6', 6],
+        ['7', 7],
+        ['8', 8],
+        ['9', 9],
+        ['a', 10],
+        ['b', 11],
+        ['c', 12],
+        ['d', 13],
+        ['e', 14],
+        ['f', 15]
+    ]);
+
     constructor(base) {
         this.base = base;
     }
@@ -62,33 +81,15 @@ class GenericConverter {
     }
     
     convertToDecimal(value, base, dictionary) {
-        let trimNeeded = this.checkforTrim(value);
         let trimmed;
-        if (trimNeeded) {
-            trimmed = this.trim(value);
+        trimmed = ConverterHelper.trim(value);
+
+        if (!this.checkForLetters(value)) {
+            let nrOfDigits = trimmed.length;
+            return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
         } else {
             return value;
         }
-        let nrOfDigits = trimmed.length;
-        return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
-    }
-    
-    checkforTrim(value) {
-        if (value.includes('x') || value.includes('h')) {
-            return 1;
-        } else if (value.includes('#')) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    
-    trim(value) {
-        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (trimmed[0] == 0) {
-            trimmed = trimmed.slice(1);
-        }
-        return trimmed;
     }
     
     calculateSumOfDigits(counter, value, base, dictionary) {
@@ -165,10 +166,13 @@ class GenericConverter {
 
     doConversion(inputValue) {
         let array = [];
-        let dictionary = this.setDictionary(this.base);
+        let dictionary = this.DEC_DICTIONARY;
         let decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
-        this.resultValue = this.convertFromDecimal(decimalValue, array, this.base, dictionary);
+        dictionary = this.setDictionary(this.base);
+        this.resultValue = this.convertFromDecimal(Number(decimalValue), array, this.base, dictionary);
         return this.resultValue;
     }
-
 }
+
+//todo: generate hex -> dec dictionary dynamically
+//todo: get correct binary if the input is dec
