@@ -168,8 +168,7 @@ class GenericConverter {
         let dictionary = this.setDictionary(this.base);
         let decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
         this.resultValue = this.convertFromDecimal(decimalValue, array, this.base, dictionary);
-
-    return this.resultValue;
+        return this.resultValue;
     }
 
 }

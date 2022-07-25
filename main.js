@@ -2,9 +2,9 @@ const FORMAT_HEX = 1;
 const FORMAT_DEC = 2;
 const FORMAT_INVALID = 0;
 const ALPH = 36;
-// const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
+const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
 // const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
-const INPUT_ARR = ['3243'];
+// const INPUT_ARR = ['33'];
 
 
 function checkForLetters(str) {
@@ -29,7 +29,7 @@ function getValueType(value) {
     return valueType;
 }
 
-function convertValue(value, outputField, binaryOutputField, converterType) {
+function convertValue(value, outputField, binaryOutputField, converterType, conversionBase) {
     let valueType = getValueType(value);
     let errorMsg = 'Unknown input format';
     let converter;
@@ -39,24 +39,29 @@ function convertValue(value, outputField, binaryOutputField, converterType) {
     let binaryValue;
     
     if (value) {
-        if (valueType == FORMAT_DEC) {
-            converter = Factory.create(10, converterType);
-            result = converter.doConversion(value);
-            hexaValue = value;
-        } else if (valueType == FORMAT_HEX) {
-            converter = Factory.create(30, converterType);
-            result = converter.doConversion(value);
-            hexaValue = result;
+        if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
+            if (valueType == FORMAT_DEC) {
+                converter = Factory.create(10, converterType);
+                result = converter.doConversion(value);
+                hexaValue = value;
+            } else if (valueType == FORMAT_HEX) {
+                converter = Factory.create(16, converterType);
+                result = converter.doConversion(value);
+                hexaValue = result;
+            } else {
+                result = errorMsg;
+                outputField.textContent = result;
+                binaryOutputField.textContent = result;
+                outputField.classList.add('text-muted', 'fst-italic');
+                binaryOutputField.classList.add('text-muted', 'fst-italic');
+                return;
+            }
+            binConverter = Factory.create(2, converterType);
+            binaryValue = binConverter.doConversion(hexaValue);
         } else {
-            result = errorMsg;
-            outputField.textContent = result;
-            binaryOutputField.textContent = result;
-            outputField.classList.add('text-muted', 'fst-italic');
-            binaryOutputField.classList.add('text-muted', 'fst-italic');
-            return;
+            converter = Factory.create(conversionBase, converterType);
+            //result = converter.doConversion(value);
         }
-        binConverter = Factory.create(2, converterType);
-        binaryValue = binConverter.doConversion(hexaValue);
     } 
 
     outputField.textContent = result;
@@ -64,7 +69,7 @@ function convertValue(value, outputField, binaryOutputField, converterType) {
     return value;
 }
 
-function generateTableRow(value, index, converterType) {
+function generateTableRow(value, index, converterType, conversionBase) {
     let tableBodyEl = document.getElementById('conversion-table-body');
     let row = document.createElement('tr');
     let html = 
@@ -78,18 +83,18 @@ function generateTableRow(value, index, converterType) {
     tableBodyEl.appendChild(row);
     let outputField = row.querySelector('.output');
     let binaryOutputField = row.querySelector('.binary');
-    convertValue(value, outputField, binaryOutputField, converterType);
+    convertValue(value, outputField, binaryOutputField, converterType, conversionBase);
     return value;
 }
 
-function populateConversionTable(converterType) {
+function populateConversionTable(converterType, conversionBase) {
     let tableBodyEl = document.getElementById('conversion-table-body');
     let tableEl = document.getElementById('conversion-table');
 
     tableBodyEl.innerHTML = '';
     if (INPUT_ARR.length) {
         [...INPUT_ARR].forEach((elem, index) => {
-            generateTableRow(elem, index+1, converterType);
+            generateTableRow(elem, index+1, converterType, conversionBase);
         });    
     } else {
         tableEl.classList.add('d-none');
@@ -101,12 +106,17 @@ function populateHtml() {
     let tableContainerEl = document.getElementById('div-content');
     let selectedConverterType = converterTypeSelectEl.selectedIndex;
     let errorMessageEl = document.getElementById('error-message');
-    //todo: capture desired base
-    
+    let baseSelectorInputEl = document.getElementById('generic-base');
+
     if(selectedConverterType) {
-        populateConversionTable(selectedConverterType);
-        tableContainerEl.classList.remove('d-none');
-        errorMessageEl.classList.add('d-none');
+        if (selectedConverterType == Factory.CONVERTER_TYPE_GENERIC) {
+            let conversionBase = baseSelectorInputEl.options[baseSelectorInputEl.selectedIndex].textContent;
+            populateConversionTable(selectedConverterType, conversionBase);
+        } else {
+            populateConversionTable(selectedConverterType, conversionBase = 0);
+            tableContainerEl.classList.remove('d-none');
+            errorMessageEl.classList.add('d-none');
+        } 
     } else {
         errorMessageEl.classList.remove('d-none');
         errorMessageEl.textContent = 'Please select a converter type';
@@ -132,30 +142,36 @@ function setSelectorValues() {
     `<option value="0" selected>Choose converter type</option>
     <option value="${Factory.CONVERTER_TYPE_DEFAULT}">Default Converter</option>
     <option value="${Factory.CONVERTER_TYPE_MY}">Custom Converter</option>
-    <option value="${Factory.CONVERTER_TYPE_GENERIC}" id="generic-conv">Generic Converter</option>
+    <option value="${Factory.CONVERTER_TYPE_GENERIC}" class="generic-conv">Generic Converter</option>
     `;
     converterTypeSelectorEl.innerHTML = html;
 }
 
-function displayBaseInput() {
+function displayBaseInput(e) {
     let baseSelectorInputEl = document.getElementById('generic-base');
-    for (let i = 1 ; i <= ALPH; i++) {
+    if (e.target.classList.contains('generic-conv')) {
+        for (let i = 1; i <= ALPH; i++) {
         let child = document.createElement('option');
         child.innerHTML = i;
         baseSelectorInputEl.appendChild(child);
     }
     baseSelectorInputEl.classList.remove('d-none');
-    //todo: populate options for desired base conversion
+    } else {
+        baseSelectorInputEl.classList.add('d-none');
+    }
+    
 }
 
 function run() {
+    let converterTypeSelectEl = document.getElementById('converter-type');
     let tabBtnElems = document.getElementById('pills-tab');
     let generateTableBtnEl = document.getElementById('generate-table');
     generateTableBtnEl.addEventListener('click', populateHtml);
     tabBtnElems.addEventListener('click', setIndex);
     setSelectorValues(); 
-    let genericConverterOptionEl = document.getElementById('generic-conv');
-    genericConverterOptionEl.addEventListener('click', displayBaseInput);
+    [...converterTypeSelectEl.options].forEach(opt => {
+        opt.addEventListener('click', displayBaseInput);
+    });
 }
 
 run();
