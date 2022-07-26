@@ -84,7 +84,7 @@ class GenericConverter {
         let trimmed;
         trimmed = ConverterHelper.trim(value);
 
-        if (!this.checkForLetters(value)) {
+        if (!this.containsNoLetters(value)) {
             let nrOfDigits = trimmed.length;
             return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
         } else {
@@ -118,18 +118,24 @@ class GenericConverter {
         }
     }
     
-    checkForLetters(str) {
+    containsNoLetters(str) {
         return /^[0-9]*$/.test(str);
     }
 
     convertToBinary(value, array, dictionary) {
         let digit;
         let index;
-        value = this.trim(value);
-        if (value != 0) {
-            for (let i = 0; i < value.length; i++) {
-                index = value[i];
-                digit = dictionary.get(index.toLowerCase());
+        let trimNeeded = ConverterHelper.checkforTrim(value.toLowerCase());
+        let trimmed;
+        if (trimNeeded) {
+            trimmed = ConverterHelper.trim(value);
+        } else {
+            trimmed = value;
+        }
+        if (trimmed != 0) {
+            for (let i = 0; i < trimmed.length; i++) {
+                index = trimmed[i];
+                digit = dictionary.get(index.toString().toLowerCase());
                 this.convertDigitToBinary(digit, array, dictionary);
             }
             return array.join('');
@@ -146,14 +152,15 @@ class GenericConverter {
     }
 
     setDictionary(base) {
-        const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97));
+        let alphabetStr = 'abcdefghijklmnopqrstuvwxyz';
+        let alphabet = alphabetStr.split('');
         let dictionary = this.DICTIONARY;
         if (base <= 10) {
             for (let i = 0; i < this.base; i++) {
                 dictionary.set(`${i}`, i);
             }
         } else {
-            for (let i = 0; i < this.base; i++) {
+            for (let i = 0; i < base; i++) {
                 if (i > 9) {
                     dictionary.set(`${i}`, alphabet.shift());
                 } else {
@@ -167,12 +174,34 @@ class GenericConverter {
     doConversion(inputValue) {
         let array = [];
         let dictionary = this.DEC_DICTIONARY;
-        let decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
+        let decimalValue = 0;
+
+        
+        decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
+        
+        
         dictionary = this.setDictionary(this.base);
+        // if (this.base == 2) {
+        //     if (this.containsNoLetters(inputValue)) {
+        //         dictionary = this.setDictionary(16);
+        //         let hexaValue = this.convertFromDecimal(Number(decimalValue), array, 16, dictionary);
+        //         dictionary = this.DEC_DICTIONARY;
+        //         this.resultValue = this.convertToBinary(hexaValue, binArray, dictionary);
+        //     } else {
+        //         dictionary = this.DEC_DICTIONARY;
+        //         this.resultValue = this.convertFromDecimal(Number(decimalValue), array, this.base, dictionary);
+        //     }
+        //     return this.resultValue;
+        // } else {
+        //     this.resultValue = this.convertFromDecimal(Number(decimalValue), array, this.base, dictionary);
+        //     return this.resultValue;
+        // }
+
         this.resultValue = this.convertFromDecimal(Number(decimalValue), array, this.base, dictionary);
+        
         return this.resultValue;
     }
 }
 
 //todo: generate hex -> dec dictionary dynamically
-//todo: get correct binary if the input is dec
+//todo: display correct binary

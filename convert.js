@@ -192,9 +192,9 @@ class NewConverter {
         if (this.base == 16) {
             this.resultValue = Number(value).toString(16);
         } else if (this.base == 10) {
-            this.resultValue = this.convertToDecimal(value);        
+            this.resultValue = this.convertToDecimal(value);
         } else {
-            this.resultValue = this.convertToDecimal(value).toString(2);
+            this.resultValue = this.convertToDecimal(value).toString(2);  
         }
         return this.resultValue;
     }

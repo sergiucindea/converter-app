@@ -3,9 +3,9 @@ const FORMAT_DEC = 2;
 const FORMAT_INVALID = 0;
 const ALPH = 36;
 
-// const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
-const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
-// const INPUT_ARR = ['144'];
+const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
+// const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
+// const INPUT_ARR = ['12265'];
 
 function checkForLetters(str) {
     return /^[0-9]*$/.test(str);
@@ -47,10 +47,8 @@ function generateTableRow(value, index, converter, binConverter, valueType) {
     let result = 0;
     let binaryResult = 0;
 
-    let start = performance.now();
     result = converter.doConversion(value);
-    let end = performance.now();
-    console.log(end-start);
+
     if (valueType == FORMAT_DEC) {
         hexaValue = value;
     } else {
@@ -153,7 +151,7 @@ function displayBaseInput(e) {
     baseSelectorInputEl.classList.remove('d-none');
     } else {
         baseSelectorInputEl.classList.add('d-none');
-    }   
+    }
 }
 
 function run() {
