@@ -28,8 +28,7 @@ class GenericConverter {
     }
 
     convertFromDecimal(value, array, base, dictionary) {
-        let maximumExp = this.calculateBaseMaxExp(value, base);
-        let divider = this.calculateDivider(maximumExp, base);
+        let divider = this.calculateDivider(value, base);
         this.calculateDivision(value, divider, base, array, dictionary);
 
         if (base == 16) {
@@ -42,20 +41,10 @@ class GenericConverter {
             return array.join('');
         }
     }
-    
-    calculateBaseMaxExp(value, base) {
-        let expCounter = 0;
+
+    calculateDivider(value, base) {
         let baseNr = base;
-        while (baseNr <= value) {
-            baseNr *= base;
-            expCounter++;
-        }
-        return expCounter;
-    }
-    
-    calculateDivider(counter, base) {
-        let baseNr = base;
-        for (let i = 0; i < counter - 1; i++) {
+        while ((baseNr*base) <= value) {
             baseNr *= base;
         }
         return baseNr;
@@ -81,14 +70,13 @@ class GenericConverter {
     }
     
     convertToDecimal(value, base, dictionary) {
-        let trimmed;
-        trimmed = ConverterHelper.trim(value);
+        let trimmed = ConverterHelper.trim(value);
 
         if (!this.containsNoLetters(value)) {
             let nrOfDigits = trimmed.length;
             return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
         } else {
-            return +value;
+            return Number(value);
         }
     }
     
@@ -99,13 +87,13 @@ class GenericConverter {
         let limit = counter - 1;
         for (let i = 0; i < counter; i++) {
             index = value[i];
-            eachNr = +(dictionary.get(index.toLowerCase()));
+            eachNr = Number(dictionary.get(index.toLowerCase()));
             sum += this.calculateEachDigitTimesBase(eachNr, limit, base);
             limit--;
         }
         return sum;
     }
-    
+
     calculateEachDigitTimesBase(value, exp, base) {
         let basenr = base;
         if (exp == 0) {
@@ -117,7 +105,7 @@ class GenericConverter {
             return value * basenr;
         }
     }
-    
+
     containsNoLetters(str) {
         return /^[0-9]*$/.test(str);
     }

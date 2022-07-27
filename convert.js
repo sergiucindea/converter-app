@@ -44,8 +44,7 @@ class Converter {
     }
 
     convertToHexadecimal(value, array) {
-        let maximumExp = this.calculateBaseMaxExp(value);
-        let divider = this.calculateDivider(maximumExp, 16);
+        let divider = this.calculateDivider(value, 16);
         this.calculateDivision(value, divider, 16, array);
         if (value > 15) {
             return array.join('');
@@ -53,20 +52,10 @@ class Converter {
             return array.join('').slice(1);
         }
     }
-    
-    calculateBaseMaxExp(value) {
-        let expCounter = 0;
-        let baseNr = 16;
-        while (baseNr <= value) {
-            baseNr *= 16;
-            expCounter++;
-        }
-        return expCounter;
-    }
-    
-    calculateDivider(counter, base) {
+
+    calculateDivider(value, base) {
         let baseNr = base;
-        for (let i = 0; i < counter - 1; i++) {
+        while ((baseNr*base) <= value) {
             baseNr *= base;
         }
         return baseNr;
@@ -152,7 +141,7 @@ class Converter {
 
     convertDigitToBinary(number, array) {
         let baseBin = 2;
-        let divider = this.calculateDivider(3, baseBin);
+        let divider = this.calculateDivider(number, baseBin);
         this.calculateDivision(number, divider, baseBin, array);
         return array;
     }
@@ -162,7 +151,7 @@ class Converter {
         if(this.base == 10) {
             this.resultValue = this.convertToDecimal(inputValue);
         } else if (this.base == 16) {
-            this.resultValue = this.convertToHexadecimal(inputValue, array);
+            this.resultValue = this.convertToHexadecimal(+inputValue, array);
         } else {
             this.resultValue = this.convertToBinary(inputValue, array);
         }

@@ -4,7 +4,7 @@ const FORMAT_INVALID = 0;
 const ALPH = 36;
 
 // const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
-const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
+const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141', '14'];
 // const INPUT_ARR = ['12265'];
 
 function checkForLetters(str) {
