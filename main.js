@@ -3,8 +3,8 @@ const FORMAT_DEC = 2;
 const FORMAT_INVALID = 0;
 const ALPH = 36;
 
-const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
-// const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
+// const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
+const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
 // const INPUT_ARR = ['12265'];
 
 function checkForLetters(str) {
@@ -29,7 +29,7 @@ function getValueType(value) {
     return valueType;
 }
 
-function generateTableRow(value, index, converter, binConverter, valueType) {
+function generateTableRow(value, index, converter, binConverter, valueType, converterType) {
     let tableBodyEl = document.getElementById('conversion-table-body');
     let row = document.createElement('tr');
     let html = 
@@ -43,19 +43,27 @@ function generateTableRow(value, index, converter, binConverter, valueType) {
     tableBodyEl.appendChild(row);
     let outputField = row.querySelector('.output');
     let binaryOutputField = row.querySelector('.binary');
-    let hexaValue = 0;
+    let valueToBin = 0;
     let result = 0;
     let binaryResult = 0;
 
-    result = converter.doConversion(value);
+    console.time('test');
+    for (let i = 0; i <= 100000; i++) {
+        result = converter.doConversion(value);
 
-    if (valueType == FORMAT_DEC) {
-        hexaValue = value;
-    } else {
-        hexaValue = result;
+        if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
+            if (valueType == FORMAT_DEC) {
+                valueToBin = value;
+            } else {
+                valueToBin = result;
+            }
+        } else {
+            valueToBin = value;
+            }
+    
+        binaryResult = binConverter.doConversion(valueToBin);
     }
-
-    binaryResult = binConverter.doConversion(hexaValue);
+    console.timeEnd('test');
 
     outputField.textContent = result;
     binaryOutputField.textContent = binaryResult;
@@ -85,7 +93,7 @@ function populateConversionTable(converterType, conversionBase) {
         binConverter = Factory.create(2, converterType);
 
         [...INPUT_ARR].forEach((elem, index) => {
-            generateTableRow(elem, index+1, converter, binConverter, valueType);
+            generateTableRow(elem, index+1, converter, binConverter, valueType, converterType);
         });
 
     } else {
@@ -102,13 +110,20 @@ function populateHtml() {
 
     if(selectedConverterType) {
         if (selectedConverterType == Factory.CONVERTER_TYPE_GENERIC) {
-            let conversionBase = baseSelectorInputEl.options[baseSelectorInputEl.selectedIndex].textContent;
-            populateConversionTable(selectedConverterType, conversionBase);
+            if (baseSelectorInputEl.options[baseSelectorInputEl.selectedIndex]) {
+                let conversionBase = baseSelectorInputEl.options[baseSelectorInputEl.selectedIndex].textContent;
+                populateConversionTable(selectedConverterType, conversionBase);
+                tableContainerEl.classList.remove('d-none');
+            } else {
+                tableContainerEl.classList.add('d-none');
+                errorMessageEl.classList.remove('d-none');
+                errorMessageEl.textContent = 'Please select a conversion base';
+            }
         } else {
             populateConversionTable(selectedConverterType, conversionBase = 0);
             errorMessageEl.classList.add('d-none');
-        } 
-        tableContainerEl.classList.remove('d-none');
+            tableContainerEl.classList.remove('d-none');
+        }
     } else {
         errorMessageEl.classList.remove('d-none');
         errorMessageEl.textContent = 'Please select a converter type';
@@ -141,7 +156,7 @@ function setSelectorValues() {
 
 function displayBaseInput(e) {
     let baseSelectorInputEl = document.getElementById('generic-base');
-    if (e.target.classList.contains('generic-conv')) {
+    if (e.target[e.target.selectedIndex].classList.contains('generic-conv')) {
         baseSelectorInputEl.innerHTML = '';
         for (let i = 2; i <= ALPH; i++) {
         let child = document.createElement('option');
@@ -158,12 +173,11 @@ function run() {
     let converterTypeSelectEl = document.getElementById('converter-type');
     let tabBtnElems = document.getElementById('pills-tab');
     let generateTableBtnEl = document.getElementById('generate-table');
+    let s = document.getElementById('generic-base');
     generateTableBtnEl.addEventListener('click', populateHtml);
     tabBtnElems.addEventListener('click', setIndex);
-    setSelectorValues(); 
-    [...converterTypeSelectEl.options].forEach(opt => {
-        opt.addEventListener('click', displayBaseInput);
-    });
+    setSelectorValues();
+    converterTypeSelectEl.addEventListener('change', displayBaseInput);
 }
 
 run();

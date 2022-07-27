@@ -60,19 +60,19 @@ class GenericConverter {
         }
         return baseNr;
     }
-    
+
     calculateDivision(number, divider, base, array, dictionary) {
-        let digit = Math.floor(number / divider);
-        let rest = number % divider;
-        this.retainDigit(digit, array, dictionary);
-        divider = divider / base;
-    
+        let digit = 0;
+        let rest = 0;
         while (divider > 0) {
-            digit = Math.floor(rest / divider);
+            digit = Math.floor(number / divider);
+            rest = number % divider;
             this.retainDigit(digit, array, dictionary);
             rest = rest % divider;
             divider = Math.floor(divider / base);
+            number = rest;
         }
+        return number;
     }
     
     retainDigit(value, array, dictionary) {
@@ -88,7 +88,7 @@ class GenericConverter {
             let nrOfDigits = trimmed.length;
             return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
         } else {
-            return value;
+            return +value;
         }
     }
     
@@ -122,35 +122,6 @@ class GenericConverter {
         return /^[0-9]*$/.test(str);
     }
 
-    convertToBinary(value, array, dictionary) {
-        let digit;
-        let index;
-        let trimNeeded = ConverterHelper.checkforTrim(value.toLowerCase());
-        let trimmed;
-        if (trimNeeded) {
-            trimmed = ConverterHelper.trim(value);
-        } else {
-            trimmed = value;
-        }
-        if (trimmed != 0) {
-            for (let i = 0; i < trimmed.length; i++) {
-                index = trimmed[i];
-                digit = dictionary.get(index.toString().toLowerCase());
-                this.convertDigitToBinary(digit, array, dictionary);
-            }
-            return array.join('');
-        } else {
-            return '0000';
-        }
-    }
-
-    convertDigitToBinary(number, array, dictionary) {
-        let baseBin = 2;
-        let divider = this.calculateDivider(3, baseBin);
-        this.calculateDivision(number, divider, baseBin, array, dictionary);
-        return array;
-    }
-
     setDictionary(base) {
         let alphabetStr = 'abcdefghijklmnopqrstuvwxyz';
         let alphabet = alphabetStr.split('');
@@ -176,32 +147,10 @@ class GenericConverter {
         let dictionary = this.DEC_DICTIONARY;
         let decimalValue = 0;
 
-        
         decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
-        
-        
         dictionary = this.setDictionary(this.base);
-        // if (this.base == 2) {
-        //     if (this.containsNoLetters(inputValue)) {
-        //         dictionary = this.setDictionary(16);
-        //         let hexaValue = this.convertFromDecimal(Number(decimalValue), array, 16, dictionary);
-        //         dictionary = this.DEC_DICTIONARY;
-        //         this.resultValue = this.convertToBinary(hexaValue, binArray, dictionary);
-        //     } else {
-        //         dictionary = this.DEC_DICTIONARY;
-        //         this.resultValue = this.convertFromDecimal(Number(decimalValue), array, this.base, dictionary);
-        //     }
-        //     return this.resultValue;
-        // } else {
-        //     this.resultValue = this.convertFromDecimal(Number(decimalValue), array, this.base, dictionary);
-        //     return this.resultValue;
-        // }
+        this.resultValue = this.convertFromDecimal(decimalValue, array, this.base, dictionary);
 
-        this.resultValue = this.convertFromDecimal(Number(decimalValue), array, this.base, dictionary);
-        
         return this.resultValue;
     }
 }
-
-//todo: generate hex -> dec dictionary dynamically
-//todo: display correct binary
