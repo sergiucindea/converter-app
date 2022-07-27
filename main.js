@@ -2,10 +2,10 @@ const FORMAT_HEX = 1;
 const FORMAT_DEC = 2;
 const FORMAT_INVALID = 0;
 const ALPH = 36;
-const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
-// const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141'];
-// const INPUT_ARR = ['33'];
 
+// const INPUT_ARR = ['2f', '8d', '#256', '2fe7', 'CAF', 'x345', '#10000', '#323', '0x243'];
+const INPUT_ARR = ['12265', '256', '4096', '3232', '345', '10000', '36268', '141', '14'];
+// const INPUT_ARR = ['12265'];
 
 function checkForLetters(str) {
     return /^[0-9]*$/.test(str);
@@ -29,47 +29,7 @@ function getValueType(value) {
     return valueType;
 }
 
-function convertValue(value, outputField, binaryOutputField, converterType, conversionBase) {
-    let valueType = getValueType(value);
-    let errorMsg = 'Unknown input format';
-    let converter;
-    let result;
-    let hexaValue;
-    let binConverter;
-    let binaryValue;
-    
-    if (value) {
-        if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
-            if (valueType == FORMAT_DEC) {
-                converter = Factory.create(10, converterType);
-                result = converter.doConversion(value);
-                hexaValue = value;
-            } else if (valueType == FORMAT_HEX) {
-                converter = Factory.create(16, converterType);
-                result = converter.doConversion(value);
-                hexaValue = result;
-            } else {
-                result = errorMsg;
-                outputField.textContent = result;
-                binaryOutputField.textContent = result;
-                outputField.classList.add('text-muted', 'fst-italic');
-                binaryOutputField.classList.add('text-muted', 'fst-italic');
-                return;
-            }
-            binConverter = Factory.create(2, converterType);
-            binaryValue = binConverter.doConversion(hexaValue);
-        } else {
-            converter = Factory.create(conversionBase, converterType);
-            //result = converter.doConversion(value);
-        }
-    } 
-
-    outputField.textContent = result;
-    binaryOutputField.textContent = binaryValue;
-    return value;
-}
-
-function generateTableRow(value, index, converterType, conversionBase) {
+function generateTableRow(value, index, converter, binConverter, valueType, converterType) {
     let tableBodyEl = document.getElementById('conversion-table-body');
     let row = document.createElement('tr');
     let html = 
@@ -83,19 +43,59 @@ function generateTableRow(value, index, converterType, conversionBase) {
     tableBodyEl.appendChild(row);
     let outputField = row.querySelector('.output');
     let binaryOutputField = row.querySelector('.binary');
-    convertValue(value, outputField, binaryOutputField, converterType, conversionBase);
+    let valueToBin = 0;
+    let result = 0;
+    let binaryResult = 0;
+
+    console.time('test');
+    for (let i = 0; i <= 100000; i++) {
+        result = converter.doConversion(value);
+
+        if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
+            if (valueType == FORMAT_DEC) {
+                valueToBin = value;
+            } else {
+                valueToBin = result;
+            }
+        } else {
+            valueToBin = value;
+            }
+    
+        binaryResult = binConverter.doConversion(valueToBin);
+    }
+    console.timeEnd('test');
+
+    outputField.textContent = result;
+    binaryOutputField.textContent = binaryResult;
+
     return value;
 }
 
 function populateConversionTable(converterType, conversionBase) {
     let tableBodyEl = document.getElementById('conversion-table-body');
     let tableEl = document.getElementById('conversion-table');
+    let valueType = 0;
+    let binConverter = 0;
 
     tableBodyEl.innerHTML = '';
     if (INPUT_ARR.length) {
+        valueType = getValueType(INPUT_ARR[0]);
+
+        if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
+            if (valueType == FORMAT_DEC) {
+                converter = Factory.create(10, converterType);
+            } else if (valueType == FORMAT_HEX) {
+                converter = Factory.create(16, converterType);
+            }
+        } else {
+            converter = Factory.create(conversionBase, converterType);
+        }
+        binConverter = Factory.create(2, converterType);
+
         [...INPUT_ARR].forEach((elem, index) => {
-            generateTableRow(elem, index+1, converterType, conversionBase);
-        });    
+            generateTableRow(elem, index+1, converter, binConverter, valueType, converterType);
+        });
+
     } else {
         tableEl.classList.add('d-none');
     }
@@ -110,13 +110,20 @@ function populateHtml() {
 
     if(selectedConverterType) {
         if (selectedConverterType == Factory.CONVERTER_TYPE_GENERIC) {
-            let conversionBase = baseSelectorInputEl.options[baseSelectorInputEl.selectedIndex].textContent;
-            populateConversionTable(selectedConverterType, conversionBase);
+            if (baseSelectorInputEl.options[baseSelectorInputEl.selectedIndex]) {
+                let conversionBase = baseSelectorInputEl.options[baseSelectorInputEl.selectedIndex].textContent;
+                populateConversionTable(selectedConverterType, conversionBase);
+                tableContainerEl.classList.remove('d-none');
+            } else {
+                tableContainerEl.classList.add('d-none');
+                errorMessageEl.classList.remove('d-none');
+                errorMessageEl.textContent = 'Please select a conversion base';
+            }
         } else {
             populateConversionTable(selectedConverterType, conversionBase = 0);
-            tableContainerEl.classList.remove('d-none');
             errorMessageEl.classList.add('d-none');
-        } 
+            tableContainerEl.classList.remove('d-none');
+        }
     } else {
         errorMessageEl.classList.remove('d-none');
         errorMessageEl.textContent = 'Please select a converter type';
@@ -149,8 +156,9 @@ function setSelectorValues() {
 
 function displayBaseInput(e) {
     let baseSelectorInputEl = document.getElementById('generic-base');
-    if (e.target.classList.contains('generic-conv')) {
-        for (let i = 1; i <= ALPH; i++) {
+    if (e.target[e.target.selectedIndex].classList.contains('generic-conv')) {
+        baseSelectorInputEl.innerHTML = '';
+        for (let i = 2; i <= ALPH; i++) {
         let child = document.createElement('option');
         child.innerHTML = i;
         baseSelectorInputEl.appendChild(child);
@@ -159,19 +167,17 @@ function displayBaseInput(e) {
     } else {
         baseSelectorInputEl.classList.add('d-none');
     }
-    
 }
 
 function run() {
     let converterTypeSelectEl = document.getElementById('converter-type');
     let tabBtnElems = document.getElementById('pills-tab');
     let generateTableBtnEl = document.getElementById('generate-table');
+    let s = document.getElementById('generic-base');
     generateTableBtnEl.addEventListener('click', populateHtml);
     tabBtnElems.addEventListener('click', setIndex);
-    setSelectorValues(); 
-    [...converterTypeSelectEl.options].forEach(opt => {
-        opt.addEventListener('click', displayBaseInput);
-    });
+    setSelectorValues();
+    converterTypeSelectEl.addEventListener('change', displayBaseInput);
 }
 
 run();
