@@ -1,4 +1,5 @@
 class ConverterHelper {
+
     static checkforTrim(value) {
         if (value.includes('x') || value.includes('h')) {
             return 1;
@@ -16,4 +17,5 @@ class ConverterHelper {
         }
         return trimmed;
     };
+    
 }

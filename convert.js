@@ -73,17 +73,17 @@ class Converter {
     }
     
     calculateDivision(number, divider, base, array) {
-        let digit = Math.floor(number / divider);
-        let rest = number % divider;
-        this.retainDigit(digit, array);
-        divider = divider / base;
-    
+        let digit = 0;
+        let rest = 0;
         while (divider > 0) {
-            digit = Math.floor(rest / divider);
+            digit = Math.floor(number / divider);
+            rest = number % divider;
             this.retainDigit(digit, array);
             rest = rest % divider;
             divider = Math.floor(divider / base);
+            number = rest;
         }
+        return number;
     }
     
     retainDigit(value, array) {
@@ -192,9 +192,9 @@ class NewConverter {
         if (this.base == 16) {
             this.resultValue = Number(value).toString(16);
         } else if (this.base == 10) {
-            this.resultValue = this.convertToDecimal(value);        
+            this.resultValue = this.convertToDecimal(value);
         } else {
-            this.resultValue = this.convertToDecimal(value).toString(2);
+            this.resultValue = this.convertToDecimal(value).toString(2);  
         }
         return this.resultValue;
     }

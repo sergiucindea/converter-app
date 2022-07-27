@@ -4,6 +4,25 @@ class GenericConverter {
 
     DICTIONARY = new Map();
 
+    DEC_DICTIONARY = new Map([
+        ['0', 0],
+        ['1', 1],
+        ['2', 2],
+        ['3', 3],
+        ['4', 4],
+        ['5', 5],
+        ['6', 6],
+        ['7', 7],
+        ['8', 8],
+        ['9', 9],
+        ['a', 10],
+        ['b', 11],
+        ['c', 12],
+        ['d', 13],
+        ['e', 14],
+        ['f', 15]
+    ]);
+
     constructor(base) {
         this.base = base;
     }
@@ -41,19 +60,19 @@ class GenericConverter {
         }
         return baseNr;
     }
-    
+
     calculateDivision(number, divider, base, array, dictionary) {
-        let digit = Math.floor(number / divider);
-        let rest = number % divider;
-        this.retainDigit(digit, array, dictionary);
-        divider = divider / base;
-    
+        let digit = 0;
+        let rest = 0;
         while (divider > 0) {
-            digit = Math.floor(rest / divider);
+            digit = Math.floor(number / divider);
+            rest = number % divider;
             this.retainDigit(digit, array, dictionary);
             rest = rest % divider;
             divider = Math.floor(divider / base);
+            number = rest;
         }
+        return number;
     }
     
     retainDigit(value, array, dictionary) {
@@ -62,33 +81,15 @@ class GenericConverter {
     }
     
     convertToDecimal(value, base, dictionary) {
-        let trimNeeded = this.checkforTrim(value);
         let trimmed;
-        if (trimNeeded) {
-            trimmed = this.trim(value);
+        trimmed = ConverterHelper.trim(value);
+
+        if (!this.containsNoLetters(value)) {
+            let nrOfDigits = trimmed.length;
+            return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
         } else {
-            return value;
+            return +value;
         }
-        let nrOfDigits = trimmed.length;
-        return this.calculateSumOfDigits(nrOfDigits, trimmed, base, dictionary);
-    }
-    
-    checkforTrim(value) {
-        if (value.includes('x') || value.includes('h')) {
-            return 1;
-        } else if (value.includes('#')) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    
-    trim(value) {
-        let trimmed = value.replace(/[^a-fA-F0-9 ]/g, "");
-        while (trimmed[0] == 0) {
-            trimmed = trimmed.slice(1);
-        }
-        return trimmed;
     }
     
     calculateSumOfDigits(counter, value, base, dictionary) {
@@ -117,42 +118,20 @@ class GenericConverter {
         }
     }
     
-    checkForLetters(str) {
+    containsNoLetters(str) {
         return /^[0-9]*$/.test(str);
     }
 
-    convertToBinary(value, array, dictionary) {
-        let digit;
-        let index;
-        value = this.trim(value);
-        if (value != 0) {
-            for (let i = 0; i < value.length; i++) {
-                index = value[i];
-                digit = dictionary.get(index.toLowerCase());
-                this.convertDigitToBinary(digit, array, dictionary);
-            }
-            return array.join('');
-        } else {
-            return '0000';
-        }
-    }
-
-    convertDigitToBinary(number, array, dictionary) {
-        let baseBin = 2;
-        let divider = this.calculateDivider(3, baseBin);
-        this.calculateDivision(number, divider, baseBin, array, dictionary);
-        return array;
-    }
-
     setDictionary(base) {
-        const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97));
+        let alphabetStr = 'abcdefghijklmnopqrstuvwxyz';
+        let alphabet = alphabetStr.split('');
         let dictionary = this.DICTIONARY;
         if (base <= 10) {
             for (let i = 0; i < this.base; i++) {
                 dictionary.set(`${i}`, i);
             }
         } else {
-            for (let i = 0; i < this.base; i++) {
+            for (let i = 0; i < base; i++) {
                 if (i > 9) {
                     dictionary.set(`${i}`, alphabet.shift());
                 } else {
@@ -165,10 +144,13 @@ class GenericConverter {
 
     doConversion(inputValue) {
         let array = [];
-        let dictionary = this.setDictionary(this.base);
-        let decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
+        let dictionary = this.DEC_DICTIONARY;
+        let decimalValue = 0;
+
+        decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
+        dictionary = this.setDictionary(this.base);
         this.resultValue = this.convertFromDecimal(decimalValue, array, this.base, dictionary);
+
         return this.resultValue;
     }
-
 }
