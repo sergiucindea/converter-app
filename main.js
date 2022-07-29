@@ -47,23 +47,19 @@ function generateTableRow(value, index, converter, binConverter, valueType, conv
     let result = 0;
     let binaryResult = 0;
 
-    console.time('test');
-    for (let i = 0; i <= 100000; i++) {
-        result = converter.doConversion(value);
+    result = converter.doConversion(value);
 
-        if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
-            if (valueType == FORMAT_DEC) {
-                valueToBin = value;
-            } else {
-                valueToBin = result;
-            }
-        } else {
+    if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
+        if (valueType == FORMAT_DEC) {
             valueToBin = value;
-            }
-    
-        binaryResult = binConverter.doConversion(valueToBin);
-    }
-    console.timeEnd('test');
+        } else {
+            valueToBin = result;
+        }
+    } else {
+        valueToBin = value;
+        }
+
+    binaryResult = binConverter.doConversion(valueToBin);
 
     outputField.textContent = result;
     binaryOutputField.textContent = binaryResult;

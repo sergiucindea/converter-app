@@ -28,8 +28,7 @@ class GenericConverter {
     }
 
     convertFromDecimal(value, array, base, dictionary) {
-        let maximumExp = this.calculateBaseMaxExp(value, base);
-        let divider = this.calculateDivider(maximumExp, base);
+        let divider = this.calculateDivider(value, base);
         this.calculateDivision(value, divider, base, array, dictionary);
 
         if (base == 16) {
@@ -43,19 +42,9 @@ class GenericConverter {
         }
     }
     
-    calculateBaseMaxExp(value, base) {
-        let expCounter = 0;
+    calculateDivider(value, base) {
         let baseNr = base;
-        while (baseNr <= value) {
-            baseNr *= base;
-            expCounter++;
-        }
-        return expCounter;
-    }
-    
-    calculateDivider(counter, base) {
-        let baseNr = base;
-        for (let i = 0; i < counter - 1; i++) {
+        while ((baseNr*base) <= value) {
             baseNr *= base;
         }
         return baseNr;
