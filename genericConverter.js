@@ -27,18 +27,19 @@ class GenericConverter {
         this.base = base;
     }
 
-    convertFromDecimal(value, array, base, dictionary) {
+    convertFromDecimal(value, base, dictionary) {
+        let resultArray = [];
         let divider = this.calculateDivider(value, base);
-        this.calculateDivision(value, divider, base, array, dictionary);
+        this.calculateDivision(value, divider, resultArray, base, dictionary);
 
         if (base == 16) {
             if (value > 15) {
-                return array.join('');
+                return resultArray.join('');
             } else {
-                return array.join('').slice(1);
+                return resultArray.join('').slice(1);
             }
         } else {
-            return array.join('');
+            return resultArray.join('');
         }
     }
     
@@ -50,23 +51,18 @@ class GenericConverter {
         return baseNr;
     }
 
-    calculateDivision(number, divider, base, array, dictionary) {
+    calculateDivision(number, divider, resultArray, base, dictionary) {
         let digit = 0;
         let rest = 0;
         while (divider > 0) {
             digit = Math.floor(number / divider);
             rest = number % divider;
-            this.retainDigit(digit, array, dictionary);
+            resultArray.push(dictionary.get(digit.toString()));
             rest = rest % divider;
             divider = Math.floor(divider / base);
             number = rest;
         }
         return number;
-    }
-    
-    retainDigit(value, array, dictionary) {
-        let convertedChar = dictionary.get(value.toString());
-        array.push(convertedChar);
     }
     
     convertToDecimal(value, base, dictionary) {
@@ -120,9 +116,11 @@ class GenericConverter {
                 dictionary.set(`${i}`, i);
             }
         } else {
+            let k = 0;
             for (let i = 0; i < base; i++) {
                 if (i > 9) {
-                    dictionary.set(`${i}`, alphabet.shift());
+                    dictionary.set(`${i}`, alphabet[k]);
+                    k++;
                 } else {
                     dictionary.set(`${i}`, i);
                 }
@@ -132,13 +130,12 @@ class GenericConverter {
     }
 
     doConversion(inputValue) {
-        let array = [];
         let dictionary = this.DEC_DICTIONARY;
         let decimalValue = 0;
 
         decimalValue = this.convertToDecimal(inputValue, 16, dictionary);
         dictionary = this.setDictionary(this.base);
-        this.resultValue = this.convertFromDecimal(decimalValue, array, this.base, dictionary);
+        this.resultValue = this.convertFromDecimal(decimalValue, this.base, dictionary);
 
         return this.resultValue;
     }

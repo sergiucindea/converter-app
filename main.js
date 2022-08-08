@@ -48,7 +48,6 @@ function generateTableRow(value, index, converter, binConverter, valueType, conv
     let binaryResult = 0;
 
     result = converter.doConversion(value);
-
     if (converterType != Factory.CONVERTER_TYPE_GENERIC) {
         if (valueType == FORMAT_DEC) {
             valueToBin = value;
@@ -169,7 +168,6 @@ function run() {
     let converterTypeSelectEl = document.getElementById('converter-type');
     let tabBtnElems = document.getElementById('pills-tab');
     let generateTableBtnEl = document.getElementById('generate-table');
-    let s = document.getElementById('generic-base');
     generateTableBtnEl.addEventListener('click', populateHtml);
     tabBtnElems.addEventListener('click', setIndex);
     setSelectorValues();
